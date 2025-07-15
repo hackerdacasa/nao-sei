@@ -14,8 +14,12 @@ ativo = st.selectbox("Escolha o ativo:", ["EURUSD=X", "BTC-USD", "AAPL", "ETH-US
 dados = yf.download(ativo, period='7d', interval='1h')
 dados.dropna(inplace=True)
 
-# Garantir que o número de dados é suficiente para calcular o RSI
-if not dados.empty:
+# Verificar se os dados são válidos
+if not dados.empty and 'Close' in dados.columns:
+    # Garantir que a coluna 'Close' seja numérica
+    dados['Close'] = pd.to_numeric(dados['Close'], errors='coerce')
+
+    # Garantir que o número de dados é suficiente para calcular o RSI
     if len(dados) >= 14:
         dados['RSI'] = ta.momentum.RSIIndicator(dados['Close']).rsi()
     else:
